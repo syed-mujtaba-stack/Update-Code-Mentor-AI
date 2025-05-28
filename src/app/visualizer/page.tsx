@@ -12,7 +12,7 @@ interface VisualizationStep {
 }
 
 export default function CodeVisualizer() {
-  const [code, setCode] = useState(`function bubbleSort(arr) {
+  const [code] = useState(`function bubbleSort(arr) {
   let len = arr.length;
   for (let i = 0; i < len; i++) {
     for (let j = 0; j < len - 1; j++) {
@@ -28,49 +28,54 @@ export default function CodeVisualizer() {
 }
 
 let numbers = [64, 34, 25, 12, 22, 11, 90];`)
-  
+
   const [currentStep, setCurrentStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1000) // milliseconds between steps
+  const [speed, setSpeed] = useState(1000)
 
-  // Mock visualization steps
-  const [visualizationSteps, setVisualizationSteps] = useState<VisualizationStep[]>([
+  const [visualizationSteps] = useState<VisualizationStep[]>([
     {
-      code: code,
+      code,
       variables: { i: 0, j: 0, len: 7, arr: [64, 34, 25, 12, 22, 11, 90] },
       output: 'Starting bubble sort...',
       lineHighlight: 3,
       explanation: 'Initialize outer loop with i = 0'
     },
     {
-      code: code,
+      code,
       variables: { i: 0, j: 0, len: 7, arr: [34, 64, 25, 12, 22, 11, 90] },
       output: 'Comparing 64 and 34',
       lineHighlight: 5,
       explanation: 'First swap: 64 > 34, so swap them'
     },
-    // Add more steps as needed
+    // Add more steps here...
   ])
 
-  const startVisualization = () => {
-    setIsPlaying(true)
-    // TODO: Implement step-by-step visualization
-  }
-
-  const stopVisualization = () => {
-    setIsPlaying(false)
-  }
+  const startVisualization = () => setIsPlaying(true)
+  const stopVisualization = () => setIsPlaying(false)
 
   const nextStep = () => {
     if (currentStep < visualizationSteps.length - 1) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep((prev) => prev + 1)
     }
   }
 
   const previousStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep((prev) => prev - 1)
     }
+  }
+
+  const handleEditorMount = (editor: any, monaco: any) => {
+    monaco.editor.defineTheme('customTheme', {
+      base: 'vs',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.lineHighlightBackground': '#f0f0f0',
+      }
+    })
+    monaco.editor.setTheme('customTheme')
   }
 
   return (
@@ -82,20 +87,20 @@ let numbers = [64, 34, 25, 12, 22, 11, 90];`)
           {/* Code Editor */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Code</h2>
-            <Editor
-              height="400px"
-              language="javascript"
-              value={visualizationSteps[currentStep].code}
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                lineNumbers: 'on',
-                renderLineHighlight: 'line',
-                lineHighlightBackground: '#f0f0f0',
-                renderIndentGuides: true,
-                highlightActiveIndentGuide: false
-              }}
-            />
+                  <Editor
+        height="400px"
+        language="javascript"
+        value={visualizationSteps[currentStep].code}
+        options={{
+          readOnly: true,
+          minimap: { enabled: false },
+          lineNumbers: 'on',
+          renderLineHighlight: 'line'
+        }}
+        theme="customTheme"
+        onMount={handleEditorMount}
+      />
+
           </div>
 
           {/* Visualization Panel */}
